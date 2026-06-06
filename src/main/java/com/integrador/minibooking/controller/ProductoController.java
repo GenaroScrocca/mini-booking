@@ -38,6 +38,17 @@ public class ProductoController {
         return productoService.guardar(producto);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizar(@PathVariable Integer id, @RequestBody Producto producto) {
+        Producto productoActualizado = productoService.actualizar(id, producto);
+
+        if (productoActualizado == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(productoActualizado);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         productoService.eliminar(id);
