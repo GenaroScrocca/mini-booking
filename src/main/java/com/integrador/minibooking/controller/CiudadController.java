@@ -25,11 +25,6 @@ public class CiudadController {
     @GetMapping("/{id}")
     public ResponseEntity<Ciudad> buscarPorId(@PathVariable Integer id) {
         Ciudad ciudad = ciudadService.buscarPorId(id);
-
-        if (ciudad == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(ciudad);
     }
 
@@ -41,11 +36,6 @@ public class CiudadController {
     @PutMapping("/{id}")
     public ResponseEntity<Ciudad> actualizar(@PathVariable Integer id, @RequestBody Ciudad ciudad) {
         Ciudad ciudadActualizada = ciudadService.actualizar(id, ciudad);
-
-        if (ciudadActualizada == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(ciudadActualizada);
     }
 

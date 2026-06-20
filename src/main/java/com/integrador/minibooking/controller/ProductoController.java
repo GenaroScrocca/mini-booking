@@ -25,11 +25,6 @@ public class ProductoController {
     @GetMapping("/{id}")
     public ResponseEntity<Producto> buscarPorId(@PathVariable Integer id) {
         Producto producto = productoService.buscarPorId(id);
-
-        if (producto == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(producto);
     }
 
@@ -41,11 +36,6 @@ public class ProductoController {
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizar(@PathVariable Integer id, @RequestBody Producto producto) {
         Producto productoActualizado = productoService.actualizar(id, producto);
-
-        if (productoActualizado == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(productoActualizado);
     }
 

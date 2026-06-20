@@ -1,5 +1,6 @@
 package com.integrador.minibooking.service;
 
+import com.integrador.minibooking.exception.ResourceNotFoundException;
 import com.integrador.minibooking.model.Ciudad;
 import com.integrador.minibooking.repository.CiudadRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,8 @@ public class CiudadService {
     }
 
     public Ciudad buscarPorId(Integer id) {
-        return ciudadRepository.findById(id).orElse(null);
+        return ciudadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la ciudad con id " + id));
     }
 
     public Ciudad guardar(Ciudad ciudad) {
@@ -28,11 +30,8 @@ public class CiudadService {
     }
 
     public Ciudad actualizar(Integer id, Ciudad ciudadActualizada) {
-        Ciudad ciudadExistente = ciudadRepository.findById(id).orElse(null);
-
-        if (ciudadExistente == null) {
-            return null;
-        }
+        Ciudad ciudadExistente = ciudadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la ciudad con id " + id));
 
         ciudadExistente.setNombre(ciudadActualizada.getNombre());
         ciudadExistente.setPais(ciudadActualizada.getPais());
@@ -42,6 +41,9 @@ public class CiudadService {
     }
 
     public void eliminar(Integer id) {
-        ciudadRepository.deleteById(id);
+        Ciudad ciudadExistente = ciudadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la ciudad con id " + id));
+
+        ciudadRepository.delete(ciudadExistente);
     }
 }

@@ -1,5 +1,6 @@
 package com.integrador.minibooking.service;
 
+import com.integrador.minibooking.exception.ResourceNotFoundException;
 import com.integrador.minibooking.model.Producto;
 import com.integrador.minibooking.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,8 @@ public class ProductoService {
     }
 
     public Producto buscarPorId(Integer id) {
-        return productoRepository.findById(id).orElse(null);
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + id));
     }
 
     public Producto guardar(Producto producto) {
@@ -28,11 +30,8 @@ public class ProductoService {
     }
 
     public Producto actualizar(Integer id, Producto productoActualizado) {
-        Producto productoExistente = productoRepository.findById(id).orElse(null);
-
-        if (productoExistente == null) {
-            return null;
-        }
+        Producto productoExistente = productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + id));
 
         productoExistente.setTitulo(productoActualizado.getTitulo());
         productoExistente.setImagenPrincipalUrl(productoActualizado.getImagenPrincipalUrl());
@@ -51,6 +50,9 @@ public class ProductoService {
     }
 
     public void eliminar(Integer id) {
-        productoRepository.deleteById(id);
+        Producto productoExistente = productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + id));
+
+        productoRepository.delete(productoExistente);
     }
 }

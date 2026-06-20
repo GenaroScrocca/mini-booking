@@ -1,5 +1,6 @@
 package com.integrador.minibooking.service;
 
+import com.integrador.minibooking.exception.ResourceNotFoundException;
 import com.integrador.minibooking.model.Categoria;
 import com.integrador.minibooking.repository.CategoriaRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,8 @@ public class CategoriaService {
     }
 
     public Categoria buscarPorId(Integer id) {
-        return categoriaRepository.findById(id).orElse(null);
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la categoría con id " + id));
     }
 
     public Categoria guardar(Categoria categoria) {
@@ -28,11 +30,8 @@ public class CategoriaService {
     }
 
     public Categoria actualizar(Integer id, Categoria categoriaActualizada) {
-        Categoria categoriaExistente = categoriaRepository.findById(id).orElse(null);
-
-        if (categoriaExistente == null) {
-            return null;
-        }
+        Categoria categoriaExistente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la categoría con id " + id));
 
         categoriaExistente.setTitulo(categoriaActualizada.getTitulo());
         categoriaExistente.setDescripcion(categoriaActualizada.getDescripcion());
@@ -42,6 +41,9 @@ public class CategoriaService {
     }
 
     public void eliminar(Integer id) {
-        categoriaRepository.deleteById(id);
+        Categoria categoriaExistente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la categoría con id " + id));
+
+        categoriaRepository.delete(categoriaExistente);
     }
 }

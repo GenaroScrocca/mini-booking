@@ -25,11 +25,6 @@ public class CategoriaController {
     @GetMapping("/{id}")
     public ResponseEntity<Categoria> buscarPorId(@PathVariable Integer id) {
         Categoria categoria = categoriaService.buscarPorId(id);
-
-        if (categoria == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(categoria);
     }
 
@@ -41,11 +36,6 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @RequestBody Categoria categoria) {
         Categoria categoriaActualizada = categoriaService.actualizar(id, categoria);
-
-        if (categoriaActualizada == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(categoriaActualizada);
     }
 
