@@ -2,6 +2,7 @@ package com.integrador.minibooking.controller;
 
 import com.integrador.minibooking.model.Categoria;
 import com.integrador.minibooking.service.CategoriaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +30,12 @@ public class CategoriaController {
     }
 
     @PostMapping
-    public Categoria guardar(@RequestBody Categoria categoria) {
+    public Categoria guardar(@Valid @RequestBody Categoria categoria) {
         return categoriaService.guardar(categoria);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @RequestBody Categoria categoria) {
+    public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @Valid @RequestBody Categoria categoria) {
         Categoria categoriaActualizada = categoriaService.actualizar(id, categoria);
         return ResponseEntity.ok(categoriaActualizada);
     }

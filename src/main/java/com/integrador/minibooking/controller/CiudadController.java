@@ -2,6 +2,7 @@ package com.integrador.minibooking.controller;
 
 import com.integrador.minibooking.model.Ciudad;
 import com.integrador.minibooking.service.CiudadService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +30,12 @@ public class CiudadController {
     }
 
     @PostMapping
-    public Ciudad guardar(@RequestBody Ciudad ciudad) {
+    public Ciudad guardar(@Valid @RequestBody Ciudad ciudad) {
         return ciudadService.guardar(ciudad);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ciudad> actualizar(@PathVariable Integer id, @RequestBody Ciudad ciudad) {
+    public ResponseEntity<Ciudad> actualizar(@PathVariable Integer id, @Valid @RequestBody Ciudad ciudad) {
         Ciudad ciudadActualizada = ciudadService.actualizar(id, ciudad);
         return ResponseEntity.ok(ciudadActualizada);
     }

@@ -2,6 +2,8 @@ package com.integrador.minibooking.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,12 +19,18 @@ public class Ciudad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "El nombre de la ciudad es obligatorio")
+    @Size(max = 100, message = "El nombre de la ciudad no puede superar los 100 caracteres")
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
+    @NotBlank(message = "El país es obligatorio")
+    @Size(max = 100, message = "El país no puede superar los 100 caracteres")
     @Column(name = "pais", nullable = false)
     private String pais;
 
+    @NotBlank(message = "La provincia es obligatoria")
+    @Size(max = 100, message = "La provincia no puede superar los 100 caracteres")
     @Column(name = "provincia", nullable = false)
     private String provincia;
 

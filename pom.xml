@@ -31,6 +31,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Validation: permite usar anotaciones como @NotBlank, @NotNull, @Size, @Email -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <!-- Spring Data JPA: conexión entre Java y la base de datos -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

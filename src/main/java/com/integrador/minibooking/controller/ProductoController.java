@@ -2,6 +2,7 @@ package com.integrador.minibooking.controller;
 
 import com.integrador.minibooking.model.Producto;
 import com.integrador.minibooking.service.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +30,12 @@ public class ProductoController {
     }
 
     @PostMapping
-    public Producto guardar(@RequestBody Producto producto) {
+    public Producto guardar(@Valid @RequestBody Producto producto) {
         return productoService.guardar(producto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizar(@PathVariable Integer id, @RequestBody Producto producto) {
+    public ResponseEntity<Producto> actualizar(@PathVariable Integer id, @Valid @RequestBody Producto producto) {
         Producto productoActualizado = productoService.actualizar(id, producto);
         return ResponseEntity.ok(productoActualizado);
     }
