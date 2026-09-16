@@ -1,5 +1,6 @@
 package com.integrador.minibooking.controller;
 
+import com.integrador.minibooking.dto.UsuarioResponseDTO;
 import com.integrador.minibooking.model.Usuario;
 import com.integrador.minibooking.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -19,25 +20,29 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> listarTodos() {
-        return usuarioService.listarTodos();
+    public List<UsuarioResponseDTO> listarTodos() {
+        return usuarioService.listarTodos()
+                .stream()
+                .map(UsuarioResponseDTO::fromEntity)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Integer id) {
         Usuario usuario = usuarioService.buscarPorId(id);
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuario));
     }
 
     @PostMapping
-    public Usuario guardar(@Valid @RequestBody Usuario usuario) {
-        return usuarioService.guardar(usuario);
+    public UsuarioResponseDTO guardar(@Valid @RequestBody Usuario usuario) {
+        Usuario usuarioGuardado = usuarioService.guardar(usuario);
+        return UsuarioResponseDTO.fromEntity(usuarioGuardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizar(@PathVariable Integer id, @Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody Usuario usuario) {
         Usuario usuarioActualizado = usuarioService.actualizar(id, usuario);
-        return ResponseEntity.ok(usuarioActualizado);
+        return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuarioActualizado));
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,6 @@
 package com.integrador.minibooking.controller;
 
+import com.integrador.minibooking.dto.ReservaResponseDTO;
 import com.integrador.minibooking.model.Reserva;
 import com.integrador.minibooking.service.ReservaService;
 import jakarta.validation.Valid;
@@ -19,25 +20,29 @@ public class ReservaController {
     }
 
     @GetMapping
-    public List<Reserva> listarTodas() {
-        return reservaService.listarTodas();
+    public List<ReservaResponseDTO> listarTodas() {
+        return reservaService.listarTodas()
+                .stream()
+                .map(ReservaResponseDTO::fromEntity)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reserva> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<ReservaResponseDTO> buscarPorId(@PathVariable Integer id) {
         Reserva reserva = reservaService.buscarPorId(id);
-        return ResponseEntity.ok(reserva);
+        return ResponseEntity.ok(ReservaResponseDTO.fromEntity(reserva));
     }
 
     @PostMapping
-    public Reserva guardar(@Valid @RequestBody Reserva reserva) {
-        return reservaService.guardar(reserva);
+    public ReservaResponseDTO guardar(@Valid @RequestBody Reserva reserva) {
+        Reserva reservaGuardada = reservaService.guardar(reserva);
+        return ReservaResponseDTO.fromEntity(reservaGuardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reserva> actualizar(@PathVariable Integer id, @Valid @RequestBody Reserva reserva) {
+    public ResponseEntity<ReservaResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody Reserva reserva) {
         Reserva reservaActualizada = reservaService.actualizar(id, reserva);
-        return ResponseEntity.ok(reservaActualizada);
+        return ResponseEntity.ok(ReservaResponseDTO.fromEntity(reservaActualizada));
     }
 
     @DeleteMapping("/{id}")
