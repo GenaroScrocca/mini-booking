@@ -35,6 +35,10 @@ public class ReservaService {
         return reservaRepository.findAll();
     }
 
+    public List<Reserva> buscarPorUsuario(Integer usuarioId) {
+        return reservaRepository.findByUsuarioId(usuarioId);
+    }
+
     public Reserva buscarPorId(Integer id) {
         return reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la reserva con id " + id));

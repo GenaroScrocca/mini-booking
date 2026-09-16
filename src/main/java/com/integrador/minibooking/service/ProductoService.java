@@ -20,6 +20,14 @@ public class ProductoService {
         return productoRepository.findAll();
     }
 
+    public List<Producto> buscarPorCiudad(Integer ciudadId) {
+        return productoRepository.findByCiudadId(ciudadId);
+    }
+
+    public List<Producto> buscarPorCategoria(Integer categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId);
+    }
+
     public Producto buscarPorId(Integer id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + id));

@@ -27,6 +27,14 @@ public class ReservaController {
                 .toList();
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public List<ReservaResponseDTO> buscarPorUsuario(@PathVariable Integer usuarioId) {
+        return reservaService.buscarPorUsuario(usuarioId)
+                .stream()
+                .map(ReservaResponseDTO::fromEntity)
+                .toList();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ReservaResponseDTO> buscarPorId(@PathVariable Integer id) {
         Reserva reserva = reservaService.buscarPorId(id);

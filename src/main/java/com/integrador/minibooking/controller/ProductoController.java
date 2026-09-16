@@ -23,6 +23,16 @@ public class ProductoController {
         return productoService.listarTodos();
     }
 
+    @GetMapping("/ciudad/{ciudadId}")
+    public List<Producto> buscarPorCiudad(@PathVariable Integer ciudadId) {
+        return productoService.buscarPorCiudad(ciudadId);
+    }
+
+    @GetMapping("/categoria/{categoriaId}")
+    public List<Producto> buscarPorCategoria(@PathVariable Integer categoriaId) {
+        return productoService.buscarPorCategoria(categoriaId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Producto> buscarPorId(@PathVariable Integer id) {
         Producto producto = productoService.buscarPorId(id);
