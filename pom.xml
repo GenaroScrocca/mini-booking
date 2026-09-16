@@ -57,6 +57,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- BCrypt: permite hashear y verificar contraseñas sin activar Spring Security completo -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
         <!-- Swagger / OpenAPI: documentación visual de la API -->
         <dependency>
             <groupId>org.springdoc</groupId>
