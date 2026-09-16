@@ -47,16 +47,10 @@ public class ReservaService {
     public Reserva guardar(Reserva reserva) {
         validarFechas(reserva.getFechaInicio(), reserva.getFechaFin());
 
-        Integer productoId = reserva.getProducto().getId();
-        Integer usuarioId = reserva.getUsuario().getId();
+        Producto producto = buscarProductoDeReserva(reserva);
+        Usuario usuario = buscarUsuarioDeReserva(reserva);
 
-        Producto producto = productoRepository.findById(productoId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + productoId));
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con id " + usuarioId));
-
-        validarDisponibilidadProducto(productoId, reserva.getFechaInicio(), reserva.getFechaFin());
+        validarDisponibilidadProducto(producto.getId(), reserva.getFechaInicio(), reserva.getFechaFin());
 
         reserva.setProducto(producto);
         reserva.setUsuario(usuario);
@@ -70,17 +64,11 @@ public class ReservaService {
 
         validarFechas(reservaActualizada.getFechaInicio(), reservaActualizada.getFechaFin());
 
-        Integer productoId = reservaActualizada.getProducto().getId();
-        Integer usuarioId = reservaActualizada.getUsuario().getId();
-
-        Producto producto = productoRepository.findById(productoId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + productoId));
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con id " + usuarioId));
+        Producto producto = buscarProductoDeReserva(reservaActualizada);
+        Usuario usuario = buscarUsuarioDeReserva(reservaActualizada);
 
         validarDisponibilidadProductoParaActualizacion(
-                productoId,
+                producto.getId(),
                 id,
                 reservaActualizada.getFechaInicio(),
                 reservaActualizada.getFechaFin()
@@ -109,6 +97,28 @@ public class ReservaService {
         if (!fechaFin.isAfter(fechaInicio)) {
             throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio");
         }
+    }
+
+    private Producto buscarProductoDeReserva(Reserva reserva) {
+        if (reserva.getProducto() == null || reserva.getProducto().getId() == null) {
+            throw new BadRequestException("El id del producto es obligatorio para la reserva");
+        }
+
+        Integer productoId = reserva.getProducto().getId();
+
+        return productoRepository.findById(productoId)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el producto con id " + productoId));
+    }
+
+    private Usuario buscarUsuarioDeReserva(Reserva reserva) {
+        if (reserva.getUsuario() == null || reserva.getUsuario().getId() == null) {
+            throw new BadRequestException("El id del usuario es obligatorio para la reserva");
+        }
+
+        Integer usuarioId = reserva.getUsuario().getId();
+
+        return usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con id " + usuarioId));
     }
 
     private void validarDisponibilidadProducto(Integer productoId, LocalDate fechaInicio, LocalDate fechaFin) {

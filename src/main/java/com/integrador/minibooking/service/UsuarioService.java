@@ -1,5 +1,6 @@
 package com.integrador.minibooking.service;
 
+import com.integrador.minibooking.exception.BadRequestException;
 import com.integrador.minibooking.exception.ResourceNotFoundException;
 import com.integrador.minibooking.model.Rol;
 import com.integrador.minibooking.model.Usuario;
@@ -30,10 +31,7 @@ public class UsuarioService {
     }
 
     public Usuario guardar(Usuario usuario) {
-        Integer rolId = usuario.getRol().getId();
-
-        Rol rol = rolRepository.findById(rolId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el rol con id " + rolId));
+        Rol rol = buscarRolDelUsuario(usuario);
 
         usuario.setRol(rol);
 
@@ -44,10 +42,7 @@ public class UsuarioService {
         Usuario usuarioExistente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con id " + id));
 
-        Integer rolId = usuarioActualizado.getRol().getId();
-
-        Rol rol = rolRepository.findById(rolId)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el rol con id " + rolId));
+        Rol rol = buscarRolDelUsuario(usuarioActualizado);
 
         usuarioExistente.setNombre(usuarioActualizado.getNombre());
         usuarioExistente.setApellido(usuarioActualizado.getApellido());
@@ -63,5 +58,16 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con id " + id));
 
         usuarioRepository.delete(usuarioExistente);
+    }
+
+    private Rol buscarRolDelUsuario(Usuario usuario) {
+        if (usuario.getRol() == null || usuario.getRol().getId() == null) {
+            throw new BadRequestException("El id del rol es obligatorio para el usuario");
+        }
+
+        Integer rolId = usuario.getRol().getId();
+
+        return rolRepository.findById(rolId)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el rol con id " + rolId));
     }
 }
