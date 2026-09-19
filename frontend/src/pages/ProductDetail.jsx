@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import ReservationForm from '../components/ReservationForm.jsx'
 import api from '../services/api.js'
 
 function ProductContent({ product }) {
@@ -25,6 +26,8 @@ function ProductContent({ product }) {
           <img src={product.imagenPrincipalUrl} alt={product.titulo} />
         </div>
       )}
+
+      <ReservationForm productId={product.id} />
 
       {images.length > 0 && (
         <section className="detail-section">

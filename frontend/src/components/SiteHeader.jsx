@@ -1,13 +1,12 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/auth.js'
 
 function SiteHeader() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
 
   function handleLogout() {
     logout()
-    navigate('/')
+    window.location.replace('/')
   }
 
   return (
@@ -18,6 +17,7 @@ function SiteHeader() {
           <NavLink to="/" end>Inicio</NavLink>
           {user ? (
             <>
+              <NavLink to="/mis-reservas">Mis reservas</NavLink>
               <span className="header-greeting">Hola, {user.nombre}</span>
               <button className="logout-button" type="button" onClick={handleLogout}>
                 Cerrar sesión
