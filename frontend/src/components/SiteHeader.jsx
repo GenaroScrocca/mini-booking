@@ -18,6 +18,9 @@ function SiteHeader() {
           {user ? (
             <>
               <NavLink to="/mis-reservas">Mis reservas</NavLink>
+              {user.rol?.nombre === 'ADMIN' && (
+                <NavLink to="/administracion">Administración</NavLink>
+              )}
               <span className="header-greeting">Hola, {user.nombre}</span>
               <button className="logout-button" type="button" onClick={handleLogout}>
                 Cerrar sesión
