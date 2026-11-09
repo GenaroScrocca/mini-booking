@@ -4,19 +4,35 @@ import api from '../services/api.js'
 
 function Home() {
   const [products, setProducts] = useState([])
+  const [cities, setCities] = useState([])
+  const [categories, setCategories] = useState([])
+  const [selectedCity, setSelectedCity] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [hasAppliedFilters, setHasAppliedFilters] = useState(false)
   const [status, setStatus] = useState('loading')
   const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     const controller = new AbortController()
 
-    async function loadProducts() {
+    async function loadHomeData() {
       try {
-        const { data } = await api.get('/productos', { signal: controller.signal })
-        if (!Array.isArray(data)) {
-          throw new Error('La respuesta de productos no es una lista')
+        const [productsResponse, citiesResponse, categoriesResponse] = await Promise.all([
+          api.get('/productos', { signal: controller.signal }),
+          api.get('/ciudades', { signal: controller.signal }),
+          api.get('/categorias', { signal: controller.signal }),
+        ])
+        if (
+          !Array.isArray(productsResponse.data)
+          || !Array.isArray(citiesResponse.data)
+          || !Array.isArray(categoriesResponse.data)
+        ) {
+          throw new Error('La API devolvió un formato inesperado')
         }
-        setProducts(data)
+        setProducts(productsResponse.data)
+        setCities(citiesResponse.data)
+        setCategories(categoriesResponse.data)
+        setHasAppliedFilters(false)
         setStatus('success')
       } catch {
         if (!controller.signal.aborted) {
@@ -25,9 +41,49 @@ function Home() {
       }
     }
 
-    loadProducts()
+    loadHomeData()
     return () => controller.abort()
   }, [retryCount])
+
+  async function handleSearch(event) {
+    event.preventDefault()
+    setStatus('loading')
+
+    try {
+      let endpoint = '/productos'
+      if (selectedCity) endpoint = `/productos/ciudad/${selectedCity}`
+      else if (selectedCategory) endpoint = `/productos/categoria/${selectedCategory}`
+
+      const { data } = await api.get(endpoint)
+      if (!Array.isArray(data)) throw new Error('La respuesta de productos no es una lista')
+
+      const filteredProducts = selectedCity && selectedCategory
+        ? data.filter((product) => String(product.categoria?.id) === selectedCategory)
+        : data
+
+      setProducts(filteredProducts)
+      setHasAppliedFilters(Boolean(selectedCity || selectedCategory))
+      setStatus('success')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  async function handleClearFilters() {
+    setSelectedCity('')
+    setSelectedCategory('')
+    setStatus('loading')
+
+    try {
+      const { data } = await api.get('/productos')
+      if (!Array.isArray(data)) throw new Error('La respuesta de productos no es una lista')
+      setProducts(data)
+      setHasAppliedFilters(false)
+      setStatus('success')
+    } catch {
+      setStatus('error')
+    }
+  }
 
   return (
     <section className="home">
@@ -35,6 +91,54 @@ function Home() {
         <h1>Encontrá tu próximo alojamiento</h1>
         <p>Explorá los lugares disponibles en Mini Booking.</p>
       </div>
+
+      <form className="home-filters" onSubmit={handleSearch}>
+        <div className="home-filter-heading">
+          <h2>Buscar propiedades</h2>
+          <p>Elegí una ciudad, una categoría o combiná ambos filtros.</p>
+        </div>
+        <div className="home-filter-controls">
+          <label className="home-filter-field">
+            <span>Ciudad</span>
+            <select
+              value={selectedCity}
+              onChange={(event) => setSelectedCity(event.target.value)}
+              disabled={status === 'loading'}
+            >
+              <option value="">Todas las ciudades</option>
+              {cities.map((city) => (
+                <option value={city.id} key={city.id}>{city.nombre}</option>
+              ))}
+            </select>
+          </label>
+          <label className="home-filter-field">
+            <span>Categoría</span>
+            <select
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value)}
+              disabled={status === 'loading'}
+            >
+              <option value="">Todas las categorías</option>
+              {categories.map((category) => (
+                <option value={category.id} key={category.id}>{category.titulo}</option>
+              ))}
+            </select>
+          </label>
+          <div className="home-filter-actions">
+            <button className="filter-primary-button" type="submit" disabled={status === 'loading'}>
+              Buscar
+            </button>
+            <button
+              className="filter-secondary-button"
+              type="button"
+              disabled={status === 'loading' || (!selectedCity && !selectedCategory && !hasAppliedFilters)}
+              onClick={handleClearFilters}
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        </div>
+      </form>
 
       {status === 'loading' && <p role="status">Cargando alojamientos...</p>}
 
@@ -57,8 +161,14 @@ function Home() {
 
       {status === 'success' && products.length === 0 && (
         <div className="home-message">
-          <h2>No hay alojamientos disponibles</h2>
-          <p>Volvé a consultar más tarde.</p>
+          {hasAppliedFilters ? (
+            <h2>No se encontraron propiedades para los filtros seleccionados.</h2>
+          ) : (
+            <>
+              <h2>No hay alojamientos disponibles</h2>
+              <p>Volvé a consultar más tarde.</p>
+            </>
+          )}
         </div>
       )}
 
