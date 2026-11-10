@@ -3,9 +3,11 @@ package com.integrador.minibooking.controller;
 import com.integrador.minibooking.model.Producto;
 import com.integrador.minibooking.service.ProductoService;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,6 +33,16 @@ public class ProductoController {
     @GetMapping("/categoria/{categoriaId}")
     public List<Producto> buscarPorCategoria(@PathVariable Integer categoriaId) {
         return productoService.buscarPorCategoria(categoriaId);
+    }
+
+    @GetMapping("/disponibles")
+    public List<Producto> buscarDisponibles(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin
+    ) {
+        return productoService.buscarDisponibles(fechaInicio, fechaFin);
     }
 
     @GetMapping("/{id}")

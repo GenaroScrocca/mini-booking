@@ -10,6 +10,7 @@ import com.integrador.minibooking.repository.CiudadRepository;
 import com.integrador.minibooking.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -39,6 +40,18 @@ public class ProductoService {
 
     public List<Producto> buscarPorCategoria(Integer categoriaId) {
         return productoRepository.findByCategoriaId(categoriaId);
+    }
+
+    public List<Producto> buscarDisponibles(LocalDate fechaInicio, LocalDate fechaFin) {
+        if (fechaInicio == null || fechaFin == null) {
+            throw new BadRequestException("Las fechas de búsqueda son obligatorias");
+        }
+
+        if (!fechaFin.isAfter(fechaInicio)) {
+            throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio");
+        }
+
+        return productoRepository.findDisponiblesEntreFechas(fechaInicio, fechaFin);
     }
 
     public Producto buscarPorId(Integer id) {

@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,5 +74,68 @@ class ProductoServiceTest {
         assertEquals("No se encontró la categoría con id 99", exception.getMessage());
         verifyNoInteractions(ciudadRepository);
         verify(productoRepository, never()).save(producto);
+    }
+
+    @Test
+    void buscarDisponiblesDevuelveProductosSinReservasSuperpuestas() {
+        LocalDate fechaInicio = LocalDate.of(2026, 11, 20);
+        LocalDate fechaFin = LocalDate.of(2026, 11, 25);
+        Producto producto1 = crearProducto(1);
+        Producto producto2 = crearProducto(2);
+
+        when(productoRepository.findDisponiblesEntreFechas(fechaInicio, fechaFin))
+                .thenReturn(List.of(producto1, producto2));
+
+        List<Producto> resultado = productoService.buscarDisponibles(fechaInicio, fechaFin);
+
+        assertEquals(List.of(producto1, producto2), resultado);
+    }
+
+    @Test
+    void buscarDisponiblesExcluyeProductoOcupado() {
+        LocalDate fechaInicio = LocalDate.of(2026, 11, 20);
+        LocalDate fechaFin = LocalDate.of(2026, 11, 25);
+        Producto productoDisponible = crearProducto(2);
+
+        when(productoRepository.findDisponiblesEntreFechas(fechaInicio, fechaFin))
+                .thenReturn(List.of(productoDisponible));
+
+        List<Producto> resultado = productoService.buscarDisponibles(fechaInicio, fechaFin);
+
+        assertEquals(List.of(productoDisponible), resultado);
+        verify(productoRepository).findDisponiblesEntreFechas(fechaInicio, fechaFin);
+    }
+
+    @Test
+    void buscarDisponiblesPermiteComenzarCuandoOtraReservaTermina() {
+        LocalDate finReservaExistente = LocalDate.of(2026, 11, 15);
+        LocalDate fechaFinBuscada = LocalDate.of(2026, 11, 20);
+        Producto producto = crearProducto(1);
+
+        when(productoRepository.findDisponiblesEntreFechas(finReservaExistente, fechaFinBuscada))
+                .thenReturn(List.of(producto));
+
+        List<Producto> resultado = productoService.buscarDisponibles(finReservaExistente, fechaFinBuscada);
+
+        assertEquals(List.of(producto), resultado);
+    }
+
+    @Test
+    void buscarDisponiblesConFechaFinNoPosteriorLanzaBadRequestException() {
+        LocalDate fecha = LocalDate.of(2026, 11, 20);
+
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> productoService.buscarDisponibles(fecha, fecha)
+        );
+
+        assertEquals("La fecha de fin debe ser posterior a la fecha de inicio", exception.getMessage());
+        verifyNoInteractions(productoRepository);
+    }
+
+    private Producto crearProducto(Integer id) {
+        Producto producto = new Producto();
+        producto.setId(id);
+        return producto;
     }
 }
