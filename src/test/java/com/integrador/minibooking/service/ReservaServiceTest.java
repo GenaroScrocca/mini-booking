@@ -114,6 +114,141 @@ class ReservaServiceTest {
         verify(reservaRepository, never()).save(any(Reserva.class));
     }
 
+    @Test
+    void actualizarReservaValidaGuardaLosCambios() {
+        Integer reservaId = 10;
+        LocalDate nuevaFechaInicio = LocalDate.now().plusDays(12);
+        LocalDate nuevaFechaFin = LocalDate.now().plusDays(16);
+        Reserva reservaExistente = crearReserva(
+                1,
+                1,
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(8)
+        );
+        reservaExistente.setId(reservaId);
+        Reserva datosActualizados = crearReserva(2, 3, nuevaFechaInicio, nuevaFechaFin);
+        Producto producto = crearProducto(2);
+        Usuario usuario = crearUsuario(3);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reservaExistente));
+        when(productoRepository.findById(2)).thenReturn(Optional.of(producto));
+        when(usuarioRepository.findById(3)).thenReturn(Optional.of(usuario));
+        when(reservaRepository.existeReservaSolapadaExcluyendoReserva(
+                2,
+                reservaId,
+                nuevaFechaInicio,
+                nuevaFechaFin
+        )).thenReturn(false);
+        when(reservaRepository.save(reservaExistente)).thenReturn(reservaExistente);
+
+        Reserva resultado = reservaService.actualizar(reservaId, datosActualizados);
+
+        assertSame(reservaExistente, resultado);
+        assertEquals(nuevaFechaInicio, resultado.getFechaInicio());
+        assertEquals(nuevaFechaFin, resultado.getFechaFin());
+        assertSame(producto, resultado.getProducto());
+        assertSame(usuario, resultado.getUsuario());
+        verify(reservaRepository).save(reservaExistente);
+    }
+
+    @Test
+    void actualizarConReservaSolapadaLanzaConflictException() {
+        Integer reservaId = 10;
+        LocalDate nuevaFechaInicio = LocalDate.now().plusDays(12);
+        LocalDate nuevaFechaFin = LocalDate.now().plusDays(16);
+        Reserva reservaExistente = crearReserva(1, 1, nuevaFechaInicio, nuevaFechaFin);
+        reservaExistente.setId(reservaId);
+        Reserva datosActualizados = crearReserva(1, 1, nuevaFechaInicio, nuevaFechaFin);
+        Producto producto = crearProducto(1);
+        Usuario usuario = crearUsuario(1);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reservaExistente));
+        when(productoRepository.findById(1)).thenReturn(Optional.of(producto));
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
+        when(reservaRepository.existeReservaSolapadaExcluyendoReserva(
+                1,
+                reservaId,
+                nuevaFechaInicio,
+                nuevaFechaFin
+        )).thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> reservaService.actualizar(reservaId, datosActualizados));
+
+        verify(reservaRepository, never()).save(any(Reserva.class));
+    }
+
+    @Test
+    void actualizarExcluyeLaPropiaReservaDeLaValidacionDeSolapamiento() {
+        Integer reservaId = 10;
+        LocalDate fechaInicio = LocalDate.now().plusDays(12);
+        LocalDate fechaFin = LocalDate.now().plusDays(16);
+        Reserva reservaExistente = crearReserva(1, 1, fechaInicio, fechaFin);
+        reservaExistente.setId(reservaId);
+        Reserva mismosDatos = crearReserva(1, 1, fechaInicio, fechaFin);
+        Producto producto = crearProducto(1);
+        Usuario usuario = crearUsuario(1);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reservaExistente));
+        when(productoRepository.findById(1)).thenReturn(Optional.of(producto));
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
+        when(reservaRepository.existeReservaSolapadaExcluyendoReserva(
+                1,
+                reservaId,
+                fechaInicio,
+                fechaFin
+        )).thenReturn(false);
+        when(reservaRepository.save(reservaExistente)).thenReturn(reservaExistente);
+
+        reservaService.actualizar(reservaId, mismosDatos);
+
+        verify(reservaRepository).existeReservaSolapadaExcluyendoReserva(
+                1,
+                reservaId,
+                fechaInicio,
+                fechaFin
+        );
+        verify(reservaRepository).save(reservaExistente);
+    }
+
+    @Test
+    void actualizarConFechaFinNoPosteriorLanzaBadRequestException() {
+        Integer reservaId = 10;
+        LocalDate fecha = LocalDate.now().plusDays(12);
+        Reserva reservaExistente = crearReserva(
+                1,
+                1,
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(8)
+        );
+        reservaExistente.setId(reservaId);
+        Reserva datosInvalidos = crearReserva(1, 1, fecha, fecha);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reservaExistente));
+
+        assertThrows(BadRequestException.class, () -> reservaService.actualizar(reservaId, datosInvalidos));
+
+        verifyNoInteractions(productoRepository, usuarioRepository);
+        verify(reservaRepository, never()).save(any(Reserva.class));
+    }
+
+    @Test
+    void eliminarReservaExistenteLaElimina() {
+        Integer reservaId = 10;
+        Reserva reservaExistente = crearReserva(
+                1,
+                1,
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(8)
+        );
+        reservaExistente.setId(reservaId);
+
+        when(reservaRepository.findById(reservaId)).thenReturn(Optional.of(reservaExistente));
+
+        reservaService.eliminar(reservaId);
+
+        verify(reservaRepository).delete(reservaExistente);
+    }
+
     private Reserva crearReserva(Integer productoId, Integer usuarioId, LocalDate fechaInicio, LocalDate fechaFin) {
         Reserva reserva = new Reserva();
         reserva.setFechaInicio(fechaInicio);

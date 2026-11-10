@@ -414,8 +414,121 @@
   font-weight: 600;
 }
 
-.my-reservation-body .detail-link {
+.my-reservation-actions {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   margin-top: auto;
+}
+
+.reservation-action-button {
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reservation-action-button.primary {
+  border-color: #136b67;
+  background: #136b67;
+  color: #fff;
+}
+
+.reservation-action-button.secondary {
+  border-color: #136b67;
+  background: #fff;
+  color: #136b67;
+}
+
+.reservation-action-button.danger {
+  border-color: #b42318;
+  background: #fff;
+  color: #b42318;
+}
+
+.reservation-action-button:not(:disabled):hover {
+  filter: brightness(0.92);
+}
+
+.reservation-action-button:focus-visible {
+  outline: 2px solid #153d41;
+  outline-offset: 3px;
+}
+
+.reservation-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.reservation-edit-form {
+  width: 100%;
+}
+
+.reservation-edit-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.reservation-edit-fields label {
+  display: grid;
+  gap: 7px;
+  color: #34454d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.reservation-edit-fields input {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #b8c6ca;
+  border-radius: 4px;
+  background: #fff;
+  color: #24313a;
+  font: inherit;
+}
+
+.reservation-edit-fields input:focus {
+  border-color: #136b67;
+  outline: 2px solid rgb(19 107 103 / 18%);
+}
+
+.reservation-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reservation-operation-message {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.reservation-operation-message.success {
+  border: 1px solid #8fc5a5;
+  background: #edf8f1;
+  color: #176b3a;
+}
+
+.reservation-operation-message.error {
+  border: 1px solid #e2a39d;
+  background: #fff1f0;
+  color: #9b2118;
+}
+
+.reservation-edit-form .reservation-operation-message {
+  margin-bottom: 14px;
 }
 
 .detail-back {
@@ -1217,6 +1330,21 @@
   .my-reservation-image {
     min-height: 0;
     aspect-ratio: 16 / 9;
+  }
+
+  .reservation-edit-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .my-reservation-actions,
+  .reservation-edit-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .my-reservation-actions .detail-link,
+  .reservation-action-button {
+    width: 100%;
   }
 
   .detail-main-image {
